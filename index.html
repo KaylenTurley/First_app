@@ -1,0 +1,2485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A beam analysis and section selection workspace mockup.">
+    <meta name="color-scheme" content="light dark">
+    <title>BeamCheck | Structural Analysis</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17243a;
+        --ink-strong: #334155;
+        --muted: #64748b;
+        --muted-soft: #94a3b8;
+        --line: #e2e8f0;
+        --line-soft: #edf1f6;
+        --paper: #ffffff;
+        --canvas: #f3f6fb;
+        --surface: #f8fafc;
+        --surface-strong: #f1f5f9;
+        --control-border: #dce3ed;
+        --blue: #2563eb;
+        --blue-dark: #1d4ed8;
+        --blue-soft: #eff6ff;
+        --blue-border: #bfdbfe;
+        --blue-ink: #1e40af;
+        --blue-light: #eff6ff;
+        --blue-light-border: #dbeafe;
+        --green: #15803d;
+        --green-soft: #f0fdf4;
+        --red: #dc5a55;
+        --status-dot: #f59e0b;
+        --fail: #be123c;
+        --fail-soft: #fff1f2;
+        --danger: #b91c1c;
+        --danger-soft: #fff7f7;
+        --danger-border: #fecaca;
+        --recommend-border: #cfe0ff;
+        --recommend-start: #f8fbff;
+        --header-status-ink: #475569;
+        --diagram-text: #475569;
+        --diagram-muted: #94a3b8;
+        --diagram-rule: #cbd5e1;
+        --diagram-grid: #e2e8f0;
+        --diagram-fill: #dbeafe;
+        --diagram-beam-fill: #dbeafe;
+        --diagram-support-fill: #eff6ff;
+        --diagram-paper: #ffffff;
+        --diagram-load: #dc5a55;
+        --diagram-load-text: #b54742;
+        --diagram-reaction-text: #1d4ed8;
+        --shadow: 0 8px 24px rgba(15, 23, 42, 0.055);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --ink: #e5edf8;
+        --ink-strong: #cbd5e1;
+        --muted: #a0aec0;
+        --muted-soft: #8291a8;
+        --line: #34445a;
+        --line-soft: #29384d;
+        --paper: #172235;
+        --canvas: #0c1422;
+        --surface: #1d2a3e;
+        --surface-strong: #26354b;
+        --control-border: #3a4b63;
+        --blue: #60a5fa;
+        --blue-dark: #93c5fd;
+        --blue-soft: #172c47;
+        --blue-border: #2a4e78;
+        --blue-ink: #bfdbfe;
+        --blue-light: #1a304d;
+        --blue-light-border: #2a4b72;
+        --green: #4ade80;
+        --green-soft: #123523;
+        --red: #fb7770;
+        --status-dot: #fbbf24;
+        --fail: #fda4af;
+        --fail-soft: #441c2a;
+        --danger: #fca5a5;
+        --danger-soft: #3c2029;
+        --danger-border: #71343d;
+        --recommend-border: #294a72;
+        --recommend-start: #172b44;
+        --header-status-ink: #cbd5e1;
+        --diagram-text: #d2dbea;
+        --diagram-muted: #91a0b6;
+        --diagram-rule: #52647a;
+        --diagram-grid: #34445a;
+        --diagram-fill: #24466f;
+        --diagram-beam-fill: #24466f;
+        --diagram-support-fill: #1a304d;
+        --diagram-paper: #172235;
+        --diagram-load: #fb7770;
+        --diagram-load-text: #fca5a5;
+        --diagram-reaction-text: #93c5fd;
+        --shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--canvas);
+        color: var(--ink);
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      .app-header {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 0 34px;
+        border-bottom: 1px solid var(--line);
+        background: var(--paper);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border-radius: 11px;
+        background: var(--blue);
+        color: #ffffff;
+      }
+
+      .brand-name {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+      }
+
+      .brand-caption {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .header-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--paper);
+        color: var(--header-status-ink);
+        font-weight: 600;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        min-height: 34px;
+        align-items: center;
+        gap: 7px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        color: var(--ink-strong);
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 650;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--blue);
+        color: var(--blue-dark);
+      }
+
+      .theme-toggle:focus-visible {
+        outline: 3px solid var(--blue-border);
+        outline-offset: 2px;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--status-dot);
+      }
+
+      .page {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 30px 34px 48px;
+      }
+
+      .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+      }
+
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(24px, 3vw, 31px);
+        font-weight: 720;
+        letter-spacing: -0.04em;
+      }
+
+      .page-description {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .example-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border: 1px solid var(--blue-border);
+        border-radius: 9px;
+        background: var(--blue-soft);
+        color: var(--blue-ink);
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(270px, 320px) minmax(0, 1fr);
+        align-items: start;
+        gap: 20px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 20px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .card-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 17px 18px 14px;
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      .card-heading h2,
+      .card-heading h3 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+
+      .card-heading p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      .section-tag {
+        padding: 5px 8px;
+        border-radius: 6px;
+        background: var(--surface-strong);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .form-body {
+        display: grid;
+        gap: 15px;
+        padding: 16px 18px 18px;
+      }
+
+      .field {
+        display: grid;
+        gap: 7px;
+      }
+
+      .field-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--ink-strong);
+        font-size: 11px;
+        font-weight: 650;
+      }
+
+      .field-label small {
+        color: var(--muted-soft);
+        font-size: 10px;
+        font-weight: 500;
+      }
+
+      .control,
+      .unit-control {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid var(--control-border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink-strong);
+        font-size: 12px;
+      }
+
+      .control {
+        padding: 0 10px;
+      }
+
+      .control:disabled,
+      .range-control:disabled,
+      .mock-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.83;
+      }
+
+      .input-with-unit {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 60px;
+        gap: 8px;
+      }
+
+      .unit-control {
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .range-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 66px;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .range-control {
+        width: 100%;
+        accent-color: var(--blue);
+      }
+
+      .load-block {
+        display: grid;
+        gap: 11px;
+        padding-top: 13px;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .first-load-block {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .load-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--ink-strong);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .load-title span:last-child {
+        color: var(--muted-soft);
+        font-size: 10px;
+        font-weight: 500;
+      }
+
+      .load-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+
+      .mock-button {
+        min-height: 34px;
+        padding: 0 9px;
+        border: 1px dashed var(--diagram-rule);
+        border-radius: 7px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 650;
+      }
+
+      .mock-button.primary {
+        border: 1px solid var(--blue-border);
+        background: var(--blue-soft);
+        color: var(--blue-dark);
+      }
+
+      .form-note {
+        margin: 0;
+        padding: 10px 11px;
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .results {
+        display: grid;
+        gap: 16px;
+        min-width: 0;
+      }
+
+      .beam-card,
+      .diagram-card,
+      .recommendation {
+        overflow: hidden;
+      }
+
+      .beam-heading {
+        align-items: center;
+      }
+
+      .beam-heading h2 {
+        font-size: 14px;
+      }
+
+      .beam-heading p {
+        font-size: 11px;
+      }
+
+      .beam-legend {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 10px;
+        white-space: nowrap;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .legend-mark {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: var(--red);
+      }
+
+      .legend-mark.reaction {
+        background: var(--blue);
+      }
+
+      .svg-wrap {
+        padding: 15px 20px 11px;
+      }
+
+      .beam-svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .diagram-svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .beam-scroll,
+      .diagram-scroll {
+        overflow-x: auto;
+      }
+
+      .beam-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 20px 14px;
+        border-top: 1px solid var(--line-soft);
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .beam-footer strong {
+        color: var(--ink-strong);
+        font-weight: 650;
+      }
+
+      .beam-footer-note {
+        color: var(--muted-soft);
+        text-align: right;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .metric-card {
+        min-height: 108px;
+        padding: 15px 16px;
+      }
+
+      .metric-label {
+        margin: 0;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 650;
+      }
+
+      .metric-value {
+        margin: 10px 0 3px;
+        color: var(--ink);
+        font-size: 22px;
+        font-weight: 740;
+        letter-spacing: -0.04em;
+      }
+
+      .metric-value span {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0;
+      }
+
+      .metric-hint {
+        margin: 0;
+        color: var(--muted-soft);
+        font-size: 10px;
+      }
+
+      .checks-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .check-card {
+        padding: 15px 16px;
+      }
+
+      .check-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .check-title {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .pass-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: var(--green-soft);
+        color: var(--green);
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .fail-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: var(--fail-soft);
+        color: var(--fail);
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .check-result {
+        margin: 13px 0 8px;
+        font-size: 20px;
+        font-weight: 730;
+        letter-spacing: -0.035em;
+      }
+
+      .check-result span {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 550;
+        letter-spacing: 0;
+      }
+
+      .check-detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 9px;
+        border-top: 1px solid var(--line-soft);
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .check-detail strong {
+        color: var(--ink-strong);
+        font-weight: 650;
+      }
+
+      .recommendation {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        border-color: var(--recommend-border);
+        background: linear-gradient(110deg, var(--recommend-start), var(--paper) 65%);
+      }
+
+      .recommend-icon {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid var(--blue-light-border);
+        border-radius: 10px;
+        background: var(--blue-light);
+        color: var(--blue);
+      }
+
+      .recommendation h2 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .recommendation p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .form-note.error {
+        border: 1px solid var(--danger-border);
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .section-name {
+        color: var(--blue-ink);
+        font-size: 18px;
+        font-weight: 750;
+        letter-spacing: -0.03em;
+        white-space: nowrap;
+      }
+
+      .diagram-card .card-heading {
+        align-items: center;
+      }
+
+      .diagram-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .diagram-index {
+        display: grid;
+        width: 22px;
+        height: 22px;
+        place-items: center;
+        border-radius: 6px;
+        background: var(--surface-strong);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 750;
+      }
+
+      .diagram-stat {
+        color: var(--ink-strong);
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .diagram-body {
+        padding: 9px 18px 13px;
+      }
+
+      .diagram-caption {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 4px;
+        color: var(--muted-soft);
+        font-size: 9px;
+      }
+
+      .mockup-footnote {
+        margin: 0;
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--paper);
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 1050px) {
+        .page {
+          padding-right: 22px;
+          padding-left: 22px;
+        }
+
+        .workspace {
+          grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
+          gap: 14px;
+        }
+
+        .metric-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 760px) {
+        .app-header {
+          min-height: 64px;
+          padding: 0 18px;
+        }
+
+        .header-right > span:first-child {
+          display: none;
+        }
+
+        .header-right {
+          gap: 8px;
+        }
+
+        .page {
+          padding: 22px 16px 36px;
+        }
+
+        .page-heading {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .sidebar .form-card:first-child {
+          grid-row: span 2;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .sidebar {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar .form-card:first-child {
+          grid-row: auto;
+        }
+
+        .beam-heading {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .beam-footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .beam-footer-note {
+          text-align: left;
+        }
+
+        .checks-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .recommendation {
+          grid-template-columns: auto minmax(0, 1fr);
+        }
+
+        .section-name {
+          grid-column: 2;
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand" aria-label="BeamCheck home">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h16M6 7v10m12-10v10M4 17h16M9 10h6v4H9z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-name">BeamCheck</p>
+          <p class="brand-caption">Structural analysis workspace</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span>Engineering tools</span>
+        <span class="header-status"><span class="status-dot" aria-hidden="true"></span><span id="header-status-text">Live calculations</span></span>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20.2 15.1A8.3 8.3 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="theme-toggle-label">Dark mode</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Beam analysis</p>
+          <h1>Beam design check</h1>
+          <p class="page-description">Review loading, structural response, and preliminary section checks.</p>
+        </div>
+        <div class="example-label">
+          <span aria-hidden="true">●</span>
+          <span id="scenario-label">Validation example loaded</span>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <aside class="sidebar" aria-label="Beam analysis inputs">
+          <section class="card form-card" aria-labelledby="geometry-heading">
+            <div class="card-heading">
+              <div>
+                <h2 id="geometry-heading">Beam &amp; supports</h2>
+                <p>Set the span and end conditions.</p>
+              </div>
+              <span class="section-tag">01</span>
+            </div>
+            <div class="form-body">
+              <label class="field">
+                <span class="field-label">Support type</span>
+                <select class="control" id="support-type" aria-label="Support type">
+                  <option value="simplySupported" selected>Simply Supported</option>
+                  <option value="cantilever">Cantilever</option>
+                </select>
+              </label>
+              <div class="field">
+                <label class="field-label" for="span-number">Span</label>
+                <div class="range-row">
+                  <input class="range-control" id="span-range" type="range" min="1" max="40" step="0.1" value="20" aria-label="Span slider">
+                  <div class="input-with-unit">
+                    <input class="control" id="span-number" type="number" min="1" max="40" step="0.1" value="20" required>
+                    <span class="unit-control">ft</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card form-card" aria-labelledby="loads-heading">
+            <div class="card-heading">
+              <div>
+                <h2 id="loads-heading">Applied loads</h2>
+                <p>Define point and distributed loads.</p>
+              </div>
+              <span class="section-tag">02</span>
+            </div>
+            <div class="form-body">
+              <div class="load-block first-load-block">
+                <div class="load-title"><span>Point load</span><span id="point-load-state">Not included</span></div>
+                <div class="field">
+                  <label class="field-label" for="point-magnitude">Magnitude <small>Downward</small></label>
+                  <div class="input-with-unit">
+                    <input class="control" id="point-magnitude" type="number" min="0" step="0.1" value="0" required>
+                    <span class="unit-control">kip</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="point-location">Location from left support</label>
+                  <div class="input-with-unit">
+                    <input class="control" id="point-location" type="number" min="0" max="20" step="0.1" value="10" required>
+                    <span class="unit-control">ft</span>
+                  </div>
+                </div>
+                <button class="mock-button" type="button" disabled>Add point load</button>
+              </div>
+              <div class="load-block">
+                <div class="load-title"><span>Uniform load</span><span id="uniform-load-state">Load 1</span></div>
+                <div class="field">
+                  <label class="field-label" for="uniform-magnitude">Magnitude</label>
+                  <div class="input-with-unit">
+                    <input class="control" id="uniform-magnitude" type="number" min="0" step="0.01" value="1.0" required>
+                    <span class="unit-control">kip/ft</span>
+                  </div>
+                </div>
+                <div class="load-grid">
+                  <div class="field">
+                    <label class="field-label" for="uniform-start">Start</label>
+                    <div class="input-with-unit">
+                      <input class="control" id="uniform-start" type="number" min="0" max="20" step="0.1" value="0" required>
+                      <span class="unit-control">ft</span>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="uniform-end">End</label>
+                    <div class="input-with-unit">
+                      <input class="control" id="uniform-end" type="number" min="0" max="20" step="0.1" value="20" required>
+                      <span class="unit-control">ft</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="mock-button primary" type="button" disabled>Add uniform load</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="card form-card" aria-labelledby="material-heading">
+            <div class="card-heading">
+              <div>
+                <h2 id="material-heading">Material &amp; checks</h2>
+                <p>Choose a section and serviceability limit.</p>
+              </div>
+              <span class="section-tag">03</span>
+            </div>
+            <div class="form-body">
+              <label class="field">
+                <span class="field-label">Material</span>
+                <select class="control" id="material-select" aria-label="Material">
+                  <option value="steel" selected>Steel</option>
+                  <option value="lumber">Lumber</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">Section</span>
+                <select class="control" id="section-select" aria-label="Section">
+                  <option>W8x10</option>
+                  <option>W10x12</option>
+                  <option selected>W12x26</option>
+                  <option>W14x22</option>
+                  <option>W16x26</option>
+                  <option>W18x35</option>
+                  <option>W21x44</option>
+                  <option>W24x55</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">Deflection limit</span>
+                <select class="control" id="deflection-limit-select" aria-label="Deflection limit">
+                  <option value="240">L/240</option>
+                  <option value="360" selected>L/360</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <p class="form-note" id="analysis-status" role="status" aria-live="polite">Results and diagrams update as inputs change.</p>
+        </aside>
+
+        <section class="results" aria-label="Beam analysis results">
+          <section class="card beam-card" aria-labelledby="beam-diagram-heading">
+            <div class="card-heading beam-heading">
+              <div>
+                <h2 id="beam-diagram-heading">Beam &amp; loading diagram</h2>
+                <p id="beam-summary">Simply supported · 20 ft span · W12x26 steel</p>
+              </div>
+              <div class="beam-legend" aria-label="Diagram legend">
+                <span class="legend-item"><span class="legend-mark" aria-hidden="true"></span>Applied load</span>
+                <span class="legend-item"><span class="legend-mark reaction" aria-hidden="true"></span>Reaction</span>
+              </div>
+            </div>
+            <div class="svg-wrap beam-scroll">
+              <svg class="beam-svg" id="beam-svg" viewBox="0 0 920 220" role="img" aria-labelledby="beam-svg-title beam-svg-desc">
+                <title id="beam-svg-title">Simply supported beam with full-span uniform load</title>
+                <desc id="beam-svg-desc">A 20 foot W12x26 beam supported at both ends, carrying a downward uniform load of 1 kip per foot across its full span. Each support reaction is shown as 10 kips.</desc>
+                <defs>
+                  <marker id="load-arrow" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto">
+                    <path d="M0 0L4 7L8 0" fill="none" stroke="var(--diagram-load)" stroke-width="1.5"/>
+                  </marker>
+                  <marker id="reaction-arrow" markerWidth="8" markerHeight="8" refX="4" refY="1" orient="auto">
+                    <path d="M0 7L4 0L8 7" fill="none" stroke="var(--blue)" stroke-width="1.5"/>
+                  </marker>
+                  <marker id="dimension-arrow" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse">
+                    <path d="M7 0L0 3.5L7 7" fill="none" stroke="var(--diagram-muted)" stroke-width="1.2"/>
+                  </marker>
+                </defs>
+                <text x="460" y="20" text-anchor="middle" fill="var(--diagram-load-text)" font-size="12" font-weight="650">1.0 kip/ft uniform load</text>
+                <line x1="120" y1="43" x2="860" y2="43" stroke="var(--diagram-load)" stroke-width="2"/>
+                <g stroke="var(--diagram-load)" stroke-width="1.7" marker-end="url(#load-arrow)">
+                  <line x1="150" y1="46" x2="150" y2="80"/>
+                  <line x1="220" y1="46" x2="220" y2="80"/>
+                  <line x1="290" y1="46" x2="290" y2="80"/>
+                  <line x1="360" y1="46" x2="360" y2="80"/>
+                  <line x1="430" y1="46" x2="430" y2="80"/>
+                  <line x1="500" y1="46" x2="500" y2="80"/>
+                  <line x1="570" y1="46" x2="570" y2="80"/>
+                  <line x1="640" y1="46" x2="640" y2="80"/>
+                  <line x1="710" y1="46" x2="710" y2="80"/>
+                  <line x1="780" y1="46" x2="780" y2="80"/>
+                  <line x1="850" y1="46" x2="850" y2="80"/>
+                </g>
+                <rect x="120" y="86" width="740" height="12" rx="3" fill="var(--diagram-beam-fill)" stroke="var(--blue)" stroke-width="1.5"/>
+                <path d="M120 100L105 123H135Z" fill="var(--diagram-support-fill)" stroke="var(--blue)" stroke-width="1.5"/>
+                <path d="M860 100L845 123H875Z" fill="var(--diagram-support-fill)" stroke="var(--blue)" stroke-width="1.5"/>
+                <line x1="120" y1="163" x2="120" y2="133" stroke="var(--blue)" stroke-width="2" marker-end="url(#reaction-arrow)"/>
+                <line x1="860" y1="163" x2="860" y2="133" stroke="var(--blue)" stroke-width="2" marker-end="url(#reaction-arrow)"/>
+                <text x="120" y="180" text-anchor="middle" fill="var(--diagram-reaction-text)" font-size="11" font-weight="650">R<tspan baseline-shift="sub" font-size="8">A</tspan> 10.0 kip</text>
+                <text x="860" y="180" text-anchor="middle" fill="var(--diagram-reaction-text)" font-size="11" font-weight="650">R<tspan baseline-shift="sub" font-size="8">B</tspan> 10.0 kip</text>
+                <line x1="120" y1="202" x2="860" y2="202" stroke="var(--diagram-muted)" stroke-width="1.2" marker-start="url(#dimension-arrow)" marker-end="url(#dimension-arrow)"/>
+                <line x1="120" y1="185" x2="120" y2="207" stroke="var(--diagram-rule)" stroke-width="1"/>
+                <line x1="860" y1="185" x2="860" y2="207" stroke="var(--diagram-rule)" stroke-width="1"/>
+                <rect x="435" y="190" width="110" height="23" rx="11" fill="var(--diagram-paper)" stroke="var(--line)"/>
+                <text x="490" y="205" text-anchor="middle" fill="var(--diagram-text)" font-size="11" font-weight="650">20 ft span</text>
+              </svg>
+            </div>
+            <div class="beam-footer">
+              <span><strong id="beam-load-summary">Full-span uniform load</strong></span>
+              <span class="beam-footer-note" id="beam-footer-note">Calculated diagram updates with the current inputs</span>
+            </div>
+          </section>
+
+          <section class="metric-grid" aria-label="Key analysis results">
+            <article class="card metric-card">
+              <p class="metric-label" id="reaction-label">Support reactions</p>
+              <p class="metric-value" id="reaction-value">10.00 / 10.00 <span>kip left / right</span></p>
+              <p class="metric-hint" id="reaction-hint">R<sub>A</sub> = R<sub>B</sub></p>
+            </article>
+            <article class="card metric-card">
+              <p class="metric-label">Maximum shear</p>
+              <p class="metric-value" id="shear-value">10.00 <span>kip</span></p>
+              <p class="metric-hint" id="shear-hint">At either support</p>
+            </article>
+            <article class="card metric-card">
+              <p class="metric-label">Maximum moment</p>
+              <p class="metric-value" id="moment-value">50.00 <span>kip-ft</span></p>
+              <p class="metric-hint" id="moment-hint">At midspan</p>
+            </article>
+            <article class="card metric-card">
+              <p class="metric-label">Maximum deflection</p>
+              <p class="metric-value" id="deflection-value">0.61 <span>in</span></p>
+              <p class="metric-hint" id="deflection-hint">At midspan · downward</p>
+            </article>
+          </section>
+
+          <section class="checks-grid" aria-label="Section checks">
+            <article class="card check-card">
+              <div class="check-top">
+                <h2 class="check-title">Bending stress check</h2>
+                <span class="pass-pill" id="stress-status"><span aria-hidden="true">✓</span> Pass</span>
+              </div>
+              <p class="check-result" id="stress-value">18.0 <span>ksi demand</span></p>
+              <div class="check-detail"><span>Allowable stress</span><strong id="stress-allowable">30.0 ksi</strong></div>
+            </article>
+            <article class="card check-card">
+              <div class="check-top">
+                <h2 class="check-title">Deflection check</h2>
+                <span class="pass-pill" id="deflection-status"><span aria-hidden="true">✓</span> Pass</span>
+              </div>
+              <p class="check-result" id="deflection-check-value">0.61 <span>in actual</span></p>
+              <div class="check-detail"><span id="deflection-limit-label">Limit · L/360</span><strong id="deflection-limit-value">0.67 in</strong></div>
+            </article>
+          </section>
+
+          <section class="card recommendation" aria-labelledby="recommendation-heading">
+            <div class="recommend-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M5 18V6h14v12H5Zm3-9h8M8 12h8M8 15h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h2 id="recommendation-heading">Recommended passing section</h2>
+              <p id="recommendation-detail">Steel recommendation: lowest weight among sections passing both checks.</p>
+            </div>
+            <span class="section-name" id="recommendation-value">W14x22</span>
+          </section>
+
+          <section class="card diagram-card" aria-labelledby="shear-heading">
+            <div class="card-heading">
+              <div class="diagram-title-wrap">
+                <span class="diagram-index">01</span>
+                <div>
+                  <h2 id="shear-heading">Shear force diagram</h2>
+                  <p>V(x) · kip</p>
+                </div>
+              </div>
+              <span class="diagram-stat" id="shear-diagram-stat">Vmax 10.00 kip</span>
+            </div>
+            <div class="diagram-body">
+              <div class="diagram-scroll">
+                <svg class="diagram-svg" id="shear-diagram" viewBox="0 0 920 110" role="img" aria-labelledby="shear-title shear-desc">
+                  <title id="shear-title">Shear force diagram</title>
+                  <desc id="shear-desc">The shear diagram starts at positive 10 kips at the left support, decreases linearly to negative 10 kips at the right support, and crosses zero at midspan.</desc>
+                  <line x1="90" y1="53" x2="865" y2="53" stroke="var(--diagram-rule)" stroke-width="1"/>
+                  <line x1="90" y1="14" x2="90" y2="91" stroke="var(--diagram-grid)" stroke-width="1"/>
+                  <line x1="865" y1="14" x2="865" y2="91" stroke="var(--diagram-grid)" stroke-width="1"/>
+                  <path d="M90 18L865 88L865 53L90 53Z" fill="var(--diagram-fill)" opacity="0.85"/>
+                  <path d="M90 18L865 88" fill="none" stroke="var(--blue)" stroke-width="2.5"/>
+                  <circle cx="90" cy="18" r="3.5" fill="var(--blue)"/>
+                  <circle cx="865" cy="88" r="3.5" fill="var(--blue)"/>
+                  <text x="73" y="19" text-anchor="end" fill="var(--diagram-text)" font-size="10">+10</text>
+                  <text x="879" y="91" fill="var(--diagram-text)" font-size="10">−10</text>
+                  <text x="90" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">0 ft</text>
+                  <text x="477" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">10 ft</text>
+                  <text x="865" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">20 ft</text>
+                </svg>
+              </div>
+              <div class="diagram-caption"><span>Positive shear is plotted upward</span><span id="shear-diagram-caption">Calculated from current loads</span></div>
+            </div>
+          </section>
+
+          <section class="card diagram-card" aria-labelledby="moment-heading">
+            <div class="card-heading">
+              <div class="diagram-title-wrap">
+                <span class="diagram-index">02</span>
+                <div>
+                  <h2 id="moment-heading">Bending moment diagram</h2>
+                  <p>M(x) · kip-ft</p>
+                </div>
+              </div>
+              <span class="diagram-stat" id="moment-diagram-stat">Mmax 50.00 kip-ft</span>
+            </div>
+            <div class="diagram-body">
+              <div class="diagram-scroll">
+                <svg class="diagram-svg" id="moment-diagram" viewBox="0 0 920 110" role="img" aria-labelledby="moment-title moment-desc">
+                  <title id="moment-title">Bending moment diagram</title>
+                  <desc id="moment-desc">A positive parabolic bending moment diagram with zero moment at both supports and a maximum of 50 kip-feet at midspan.</desc>
+                  <line x1="90" y1="90" x2="865" y2="90" stroke="var(--diagram-rule)" stroke-width="1"/>
+                  <line x1="90" y1="14" x2="90" y2="94" stroke="var(--diagram-grid)" stroke-width="1"/>
+                  <line x1="865" y1="14" x2="865" y2="94" stroke="var(--diagram-grid)" stroke-width="1"/>
+                  <path d="M90 90Q477 6 865 90L865 90L90 90Z" fill="var(--diagram-fill)" opacity="0.85"/>
+                  <path d="M90 90Q477 6 865 90" fill="none" stroke="var(--blue)" stroke-width="2.5"/>
+                  <circle cx="477" cy="48" r="3.5" fill="var(--blue)"/>
+                  <text x="477" y="30" text-anchor="middle" fill="var(--diagram-text)" font-size="10" font-weight="650">50 kip-ft</text>
+                  <text x="90" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">0 ft</text>
+                  <text x="477" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">10 ft</text>
+                  <text x="865" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">20 ft</text>
+                </svg>
+              </div>
+              <div class="diagram-caption"><span>Sagging positive; hogging negative</span><span id="moment-diagram-caption">Calculated from current loads</span></div>
+            </div>
+          </section>
+
+          <section class="card diagram-card" aria-labelledby="deflection-heading">
+            <div class="card-heading">
+              <div class="diagram-title-wrap">
+                <span class="diagram-index">03</span>
+                <div>
+                  <h2 id="deflection-heading">Deflection diagram</h2>
+                  <p>δ(x) · in</p>
+                </div>
+              </div>
+              <span class="diagram-stat" id="deflection-diagram-stat">δmax 0.61 in</span>
+            </div>
+            <div class="diagram-body">
+              <div class="diagram-scroll">
+                <svg class="diagram-svg" id="deflection-diagram" viewBox="0 0 920 110" role="img" aria-labelledby="deflection-title deflection-desc">
+                  <title id="deflection-title">Beam deflection diagram</title>
+                  <desc id="deflection-desc">An exaggerated downward deflection curve, zero at the supports and reaching 0.61 inches downward at midspan.</desc>
+                  <line x1="90" y1="23" x2="865" y2="23" stroke="var(--diagram-rule)" stroke-width="1" stroke-dasharray="4 4"/>
+                  <line x1="90" y1="18" x2="90" y2="46" stroke="var(--diagram-muted)" stroke-width="1.5"/>
+                  <line x1="865" y1="18" x2="865" y2="46" stroke="var(--diagram-muted)" stroke-width="1.5"/>
+                  <path d="M90 23C230 25 335 74 477 79C619 74 725 25 865 23" fill="none" stroke="var(--blue)" stroke-width="2.5"/>
+                  <circle cx="477" cy="79" r="3.5" fill="var(--blue)"/>
+                  <text x="477" y="98" text-anchor="middle" fill="var(--diagram-text)" font-size="10" font-weight="650">0.61 in ↓</text>
+                  <text x="90" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">0 ft</text>
+                  <text x="477" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">10 ft</text>
+                  <text x="865" y="106" text-anchor="middle" fill="var(--diagram-muted)" font-size="9">20 ft</text>
+                </svg>
+              </div>
+              <div class="diagram-caption"><span>Downward deflection is plotted downward</span><span id="deflection-diagram-caption">Scale adjusts to the calculated response</span></div>
+            </div>
+          </section>
+
+          <p class="mockup-footnote"><strong>Analysis note:</strong> diagrams show calculated response for the current inputs. Verify designs with an appropriate engineering process.</p>
+        </section>
+      </div>
+    </main>
+    <script>
+      function requireFiniteNumber(value, name) {
+        if (typeof value !== "number" || !Number.isFinite(value)) {
+          throw new TypeError(name + " must be a finite number.");
+        }
+        return value;
+      }
+
+      function prepareBeamModel(beam) {
+        if (!beam || typeof beam !== "object") {
+          throw new TypeError("Beam input must be an object.");
+        }
+
+        const spanFt = requireFiniteNumber(beam.spanFt, "spanFt");
+        if (spanFt <= 0) {
+          throw new RangeError("spanFt must be greater than zero.");
+        }
+
+        if (beam.supportType !== "simplySupported" && beam.supportType !== "cantilever") {
+          throw new RangeError('supportType must be "simplySupported" or "cantilever".');
+        }
+
+        const pointLoads = beam.pointLoads === undefined ? [] : beam.pointLoads;
+        const uniformLoads = beam.uniformLoads === undefined ? [] : beam.uniformLoads;
+        if (!Array.isArray(pointLoads) || !Array.isArray(uniformLoads)) {
+          throw new TypeError("pointLoads and uniformLoads must be arrays.");
+        }
+
+        const normalizedPointLoads = pointLoads.map(function (load, index) {
+          if (!load || typeof load !== "object") {
+            throw new TypeError("pointLoads[" + index + "] must be an object.");
+          }
+          const magnitudeKip = requireFiniteNumber(load.magnitudeKip, "pointLoads[" + index + "].magnitudeKip");
+          const positionFt = requireFiniteNumber(load.positionFt, "pointLoads[" + index + "].positionFt");
+          if (magnitudeKip < 0) {
+            throw new RangeError("Point load magnitudes must be zero or greater (downward).");
+          }
+          if (positionFt < 0 || positionFt > spanFt) {
+            throw new RangeError("Point load positions must be within the beam span.");
+          }
+          return { magnitudeKip: magnitudeKip, positionFt: positionFt };
+        });
+
+        const normalizedUniformLoads = uniformLoads.map(function (load, index) {
+          if (!load || typeof load !== "object") {
+            throw new TypeError("uniformLoads[" + index + "] must be an object.");
+          }
+          const magnitudeKipPerFt = requireFiniteNumber(load.magnitudeKipPerFt, "uniformLoads[" + index + "].magnitudeKipPerFt");
+          const startFt = requireFiniteNumber(load.startFt, "uniformLoads[" + index + "].startFt");
+          const endFt = requireFiniteNumber(load.endFt, "uniformLoads[" + index + "].endFt");
+          if (magnitudeKipPerFt < 0) {
+            throw new RangeError("Uniform load magnitudes must be zero or greater (downward).");
+          }
+          if (startFt < 0 || endFt > spanFt || startFt >= endFt) {
+            throw new RangeError("Uniform load limits must satisfy 0 <= startFt < endFt <= spanFt.");
+          }
+          return {
+            magnitudeKipPerFt: magnitudeKipPerFt,
+            startFt: startFt,
+            endFt: endFt
+          };
+        });
+
+        return {
+          supportType: beam.supportType,
+          spanFt: spanFt,
+          pointLoads: normalizedPointLoads,
+          uniformLoads: normalizedUniformLoads
+        };
+      }
+
+      function calculateSupportReactions(beam) {
+        const model = prepareBeamModel(beam);
+        let totalLoadKip = 0;
+        let totalMomentAboutLeftKipFt = 0;
+
+        model.pointLoads.forEach(function (load) {
+          totalLoadKip += load.magnitudeKip;
+          totalMomentAboutLeftKipFt += load.magnitudeKip * load.positionFt;
+        });
+
+        model.uniformLoads.forEach(function (load) {
+          const loadLengthFt = load.endFt - load.startFt;
+          const resultantKip = load.magnitudeKipPerFt * loadLengthFt;
+          const centroidFt = (load.startFt + load.endFt) / 2;
+          totalLoadKip += resultantKip;
+          totalMomentAboutLeftKipFt += resultantKip * centroidFt;
+        });
+
+        if (model.supportType === "cantilever") {
+          return {
+            leftKip: totalLoadKip,
+            rightKip: 0,
+            fixedEndMomentKipFt: -totalMomentAboutLeftKipFt
+          };
+        }
+
+        const rightKip = totalMomentAboutLeftKipFt / model.spanFt;
+        return {
+          leftKip: totalLoadKip - rightKip,
+          rightKip: rightKip,
+          fixedEndMomentKipFt: 0
+        };
+      }
+
+      function createDiagramPositions(model) {
+        const positions = [];
+        for (let index = 0; index <= 80; index += 1) {
+          positions.push(model.spanFt * index / 80);
+        }
+        model.pointLoads.forEach(function (load) {
+          positions.push(load.positionFt);
+        });
+        model.uniformLoads.forEach(function (load) {
+          positions.push(load.startFt, load.endFt);
+        });
+        return Array.from(new Set(positions)).sort(function (a, b) {
+          return a - b;
+        });
+      }
+
+      function getDiagramPositions(model, positionsFt) {
+        if (positionsFt === undefined) {
+          return createDiagramPositions(model);
+        }
+        if (!Array.isArray(positionsFt)) {
+          throw new TypeError("positionsFt must be an array.");
+        }
+        return positionsFt.map(function (positionFt, index) {
+          const position = requireFiniteNumber(positionFt, "positionsFt[" + index + "]");
+          if (position < 0 || position > model.spanFt) {
+            throw new RangeError("Diagram positions must be within the beam span.");
+          }
+          return position;
+        });
+      }
+
+      function calculateShearDiagramValues(beam, positionsFt) {
+        const model = prepareBeamModel(beam);
+        const reactions = calculateSupportReactions(model);
+        const positions = getDiagramPositions(model, positionsFt);
+
+        return positions.map(function (positionFt) {
+          let shearBeforePointLoadsKip = reactions.leftKip;
+          let pointLoadsAtPositionKip = 0;
+
+          model.pointLoads.forEach(function (load) {
+            if (load.positionFt < positionFt) {
+              shearBeforePointLoadsKip -= load.magnitudeKip;
+            } else if (load.positionFt === positionFt) {
+              pointLoadsAtPositionKip += load.magnitudeKip;
+            }
+          });
+
+          model.uniformLoads.forEach(function (load) {
+            const loadedLengthBeforePositionFt = Math.max(
+              0,
+              Math.min(positionFt, load.endFt) - load.startFt
+            );
+            shearBeforePointLoadsKip -= load.magnitudeKipPerFt * loadedLengthBeforePositionFt;
+          });
+
+          return {
+            positionFt: positionFt,
+            leftShearKip: shearBeforePointLoadsKip,
+            rightShearKip: shearBeforePointLoadsKip - pointLoadsAtPositionKip
+          };
+        });
+      }
+
+      function calculateMomentDiagramValues(beam, positionsFt) {
+        const model = prepareBeamModel(beam);
+        const reactions = calculateSupportReactions(model);
+        const positions = getDiagramPositions(model, positionsFt);
+
+        return positions.map(function (positionFt) {
+          let momentKipFt = reactions.fixedEndMomentKipFt + reactions.leftKip * positionFt;
+
+          model.pointLoads.forEach(function (load) {
+            if (load.positionFt < positionFt) {
+              momentKipFt -= load.magnitudeKip * (positionFt - load.positionFt);
+            }
+          });
+
+          model.uniformLoads.forEach(function (load) {
+            const loadedEndFt = Math.min(positionFt, load.endFt);
+            if (loadedEndFt > load.startFt) {
+              const loadedLengthFt = loadedEndFt - load.startFt;
+              const loadCentroidFt = (load.startFt + loadedEndFt) / 2;
+              momentKipFt -= load.magnitudeKipPerFt * loadedLengthFt * (positionFt - loadCentroidFt);
+            }
+          });
+
+          return {
+            positionFt: positionFt,
+            momentKipFt: momentKipFt
+          };
+        });
+      }
+
+      const SECTION_PROPERTY_TABLES = Object.freeze({
+        steel: Object.freeze({
+          Eksi: 29000,
+          FbKsi: 30,
+          sections: Object.freeze({
+            "W8x10": Object.freeze({ weightLbPerFt: 10, IxIn4: 30.8, SxIn3: 7.81 }),
+            "W10x12": Object.freeze({ weightLbPerFt: 12, IxIn4: 53.8, SxIn3: 10.9 }),
+            "W12x26": Object.freeze({ weightLbPerFt: 26, IxIn4: 204, SxIn3: 33.4 }),
+            "W14x22": Object.freeze({ weightLbPerFt: 22, IxIn4: 199, SxIn3: 29.0 }),
+            "W16x26": Object.freeze({ weightLbPerFt: 26, IxIn4: 301, SxIn3: 38.4 }),
+            "W18x35": Object.freeze({ weightLbPerFt: 35, IxIn4: 510, SxIn3: 57.6 }),
+            "W21x44": Object.freeze({ weightLbPerFt: 44, IxIn4: 843, SxIn3: 81.6 }),
+            "W24x55": Object.freeze({ weightLbPerFt: 55, IxIn4: 1350, SxIn3: 114 })
+          })
+        }),
+        lumber: Object.freeze({
+          Eksi: 1600,
+          FbKsi: 0.9,
+          sections: Object.freeze({
+            "2x8": Object.freeze({ IxIn4: 47.63, SxIn3: 13.14 }),
+            "2x10": Object.freeze({ IxIn4: 98.93, SxIn3: 21.39 }),
+            "2x12": Object.freeze({ IxIn4: 177.98, SxIn3: 31.64 })
+          })
+        })
+      });
+
+      const LUMBER_RECOMMENDATION_ORDER = Object.freeze(["2x8", "2x10", "2x12"]);
+
+      function getSectionProperties(material, sectionName) {
+        const materialTable = SECTION_PROPERTY_TABLES[material];
+        if (!materialTable) {
+          throw new RangeError('Material must be "steel" or "lumber".');
+        }
+        const section = materialTable.sections[sectionName];
+        if (!section) {
+          throw new RangeError("Section " + sectionName + " is not available for " + material + ".");
+        }
+        return Object.assign({
+          material: material,
+          sectionName: sectionName,
+          Eksi: materialTable.Eksi,
+          FbKsi: materialTable.FbKsi
+        }, section);
+      }
+
+      function validateSectionProperties(sectionProperties) {
+        if (!sectionProperties || typeof sectionProperties !== "object") {
+          throw new TypeError("Section properties must be provided.");
+        }
+        const Eksi = requireFiniteNumber(sectionProperties.Eksi, "Eksi");
+        const IxIn4 = requireFiniteNumber(sectionProperties.IxIn4, "IxIn4");
+        const SxIn3 = requireFiniteNumber(sectionProperties.SxIn3, "SxIn3");
+        const FbKsi = requireFiniteNumber(sectionProperties.FbKsi, "FbKsi");
+        if (Eksi <= 0 || IxIn4 <= 0 || SxIn3 <= 0 || FbKsi <= 0) {
+          throw new RangeError("Eksi, IxIn4, SxIn3, and FbKsi must be greater than zero.");
+        }
+        return {
+          Eksi: Eksi,
+          IxIn4: IxIn4,
+          SxIn3: SxIn3,
+          FbKsi: FbKsi
+        };
+      }
+
+      function createFineDeflectionPositions(model) {
+        const positions = [];
+        for (let index = 0; index <= 200; index += 1) {
+          positions.push(model.spanFt * index / 200);
+        }
+        model.pointLoads.forEach(function (load) {
+          positions.push(load.positionFt);
+        });
+        model.uniformLoads.forEach(function (load) {
+          positions.push(load.startFt, load.endFt);
+        });
+        return Array.from(new Set(positions)).sort(function (a, b) {
+          return a - b;
+        });
+      }
+
+      function calculateMomentAtKipInches(model, reactions, positionFt) {
+        let momentKipFt = reactions.fixedEndMomentKipFt + reactions.leftKip * positionFt;
+
+        model.pointLoads.forEach(function (load) {
+          if (load.positionFt < positionFt) {
+            momentKipFt -= load.magnitudeKip * (positionFt - load.positionFt);
+          }
+        });
+
+        model.uniformLoads.forEach(function (load) {
+          const loadedEndFt = Math.min(positionFt, load.endFt);
+          if (loadedEndFt > load.startFt) {
+            const loadedLengthFt = loadedEndFt - load.startFt;
+            const loadCentroidFt = (load.startFt + loadedEndFt) / 2;
+            momentKipFt -= load.magnitudeKipPerFt * loadedLengthFt * (positionFt - loadCentroidFt);
+          }
+        });
+
+        return momentKipFt * 12;
+      }
+
+      function integrateMomentForDeflection(model, reactions, evaluationFt) {
+        const evaluationIn = evaluationFt * 12;
+        if (evaluationIn === 0) {
+          return 0;
+        }
+
+        const breakpoints = [0, evaluationFt];
+        model.pointLoads.forEach(function (load) {
+          if (load.positionFt > 0 && load.positionFt < evaluationFt) {
+            breakpoints.push(load.positionFt);
+          }
+        });
+        model.uniformLoads.forEach(function (load) {
+          if (load.startFt > 0 && load.startFt < evaluationFt) {
+            breakpoints.push(load.startFt);
+          }
+          if (load.endFt > 0 && load.endFt < evaluationFt) {
+            breakpoints.push(load.endFt);
+          }
+        });
+        const sortedBreakpoints = Array.from(new Set(breakpoints)).sort(function (a, b) {
+          return a - b;
+        });
+
+        function weightedMomentAt(positionFt) {
+          const positionIn = positionFt * 12;
+          return calculateMomentAtKipInches(model, reactions, positionFt) * (evaluationIn - positionIn);
+        }
+
+        let integral = 0;
+        for (let index = 0; index < sortedBreakpoints.length - 1; index += 1) {
+          const startFt = sortedBreakpoints[index];
+          const endFt = sortedBreakpoints[index + 1];
+          const midpointFt = (startFt + endFt) / 2;
+          const intervalIn = (endFt - startFt) * 12;
+          integral += intervalIn / 6 * (
+            weightedMomentAt(startFt) +
+            4 * weightedMomentAt(midpointFt) +
+            weightedMomentAt(endFt)
+          );
+        }
+        return integral;
+      }
+
+      function calculateDeflectionValues(beam, sectionProperties, positionsFt) {
+        const model = prepareBeamModel(beam);
+        const section = validateSectionProperties(sectionProperties);
+        const positions = positionsFt === undefined
+          ? createFineDeflectionPositions(model)
+          : getDiagramPositions(model, positionsFt);
+        const EI = section.Eksi * section.IxIn4;
+        const spanIn = model.spanFt * 12;
+        const initialSlope = model.supportType === "simplySupported"
+          ? integrateMomentForDeflection(model, calculateSupportReactions(model), model.spanFt) / (EI * spanIn)
+          : 0;
+        const reactions = calculateSupportReactions(model);
+
+        return positions.map(function (positionFt) {
+          const positionIn = positionFt * 12;
+          const weightedMomentIntegral = integrateMomentForDeflection(model, reactions, positionFt);
+          const deflectionIn = model.supportType === "cantilever"
+            ? -weightedMomentIntegral / EI
+            : initialSlope * positionIn - weightedMomentIntegral / EI;
+          return {
+            positionFt: positionFt,
+            deflectionIn: deflectionIn
+          };
+        });
+      }
+
+      function calculateMaximumDeflection(beam, sectionProperties) {
+        const values = calculateDeflectionValues(beam, sectionProperties);
+        let maximumIndex = 0;
+        for (let index = 1; index < values.length; index += 1) {
+          if (Math.abs(values[index].deflectionIn) > Math.abs(values[maximumIndex].deflectionIn)) {
+            maximumIndex = index;
+          }
+        }
+
+        if (maximumIndex === 0 || maximumIndex === values.length - 1) {
+          const value = values[maximumIndex];
+          return {
+            deflectionIn: Math.abs(value.deflectionIn),
+            signedDeflectionIn: value.deflectionIn,
+            positionFt: value.positionFt
+          };
+        }
+
+        let lowerFt = values[maximumIndex - 1].positionFt;
+        let upperFt = values[maximumIndex + 1].positionFt;
+        const goldenRatio = (Math.sqrt(5) - 1) / 2;
+        let leftFt = upperFt - goldenRatio * (upperFt - lowerFt);
+        let rightFt = lowerFt + goldenRatio * (upperFt - lowerFt);
+
+        function absoluteDeflectionAt(positionFt) {
+          return Math.abs(calculateDeflectionValues(beam, sectionProperties, [positionFt])[0].deflectionIn);
+        }
+
+        let leftValue = absoluteDeflectionAt(leftFt);
+        let rightValue = absoluteDeflectionAt(rightFt);
+        for (let iteration = 0; iteration < 40; iteration += 1) {
+          if (leftValue > rightValue) {
+            upperFt = rightFt;
+            rightFt = leftFt;
+            rightValue = leftValue;
+            leftFt = upperFt - goldenRatio * (upperFt - lowerFt);
+            leftValue = absoluteDeflectionAt(leftFt);
+          } else {
+            lowerFt = leftFt;
+            leftFt = rightFt;
+            leftValue = rightValue;
+            rightFt = lowerFt + goldenRatio * (upperFt - lowerFt);
+            rightValue = absoluteDeflectionAt(rightFt);
+          }
+        }
+
+        const positionFt = (lowerFt + upperFt) / 2;
+        const signedDeflectionIn = calculateDeflectionValues(beam, sectionProperties, [positionFt])[0].deflectionIn;
+        return {
+          deflectionIn: Math.abs(signedDeflectionIn),
+          signedDeflectionIn: signedDeflectionIn,
+          positionFt: positionFt
+        };
+      }
+
+      function createLoadBreakpoints(model) {
+        const positions = [0, model.spanFt];
+        model.pointLoads.forEach(function (load) {
+          positions.push(load.positionFt);
+        });
+        model.uniformLoads.forEach(function (load) {
+          positions.push(load.startFt, load.endFt);
+        });
+        return Array.from(new Set(positions)).sort(function (a, b) {
+          return a - b;
+        });
+      }
+
+      function calculateBeamExtrema(beam) {
+        const model = prepareBeamModel(beam);
+        const breakpoints = createLoadBreakpoints(model);
+        const shearValues = calculateShearDiagramValues(model, breakpoints);
+        let maximumShearKip = 0;
+        let maximumShearPositionFt = 0;
+
+        shearValues.forEach(function (value) {
+          [value.leftShearKip, value.rightShearKip].forEach(function (shearKip) {
+            if (Math.abs(shearKip) > maximumShearKip) {
+              maximumShearKip = Math.abs(shearKip);
+              maximumShearPositionFt = value.positionFt;
+            }
+          });
+        });
+
+        const momentPositions = breakpoints.slice();
+        for (let index = 0; index < breakpoints.length - 1; index += 1) {
+          const startFt = breakpoints[index];
+          const endFt = breakpoints[index + 1];
+          const midpointFt = (startFt + endFt) / 2;
+          let uniformLoadKipPerFt = 0;
+          model.uniformLoads.forEach(function (load) {
+            if (load.startFt < midpointFt && load.endFt > midpointFt) {
+              uniformLoadKipPerFt += load.magnitudeKipPerFt;
+            }
+          });
+          if (uniformLoadKipPerFt === 0) {
+            continue;
+          }
+
+          const shearAtStartKip = shearValues[index].rightShearKip;
+          const zeroShearPositionFt = startFt + shearAtStartKip / uniformLoadKipPerFt;
+          if (zeroShearPositionFt > startFt && zeroShearPositionFt < endFt) {
+            momentPositions.push(zeroShearPositionFt);
+          }
+        }
+
+        const momentValues = calculateMomentDiagramValues(model, momentPositions);
+        let maximumMomentKipFt = 0;
+        let maximumMomentPositionFt = 0;
+        momentValues.forEach(function (value) {
+          if (Math.abs(value.momentKipFt) > maximumMomentKipFt) {
+            maximumMomentKipFt = Math.abs(value.momentKipFt);
+            maximumMomentPositionFt = value.positionFt;
+          }
+        });
+
+        return {
+          maximumShearKip: maximumShearKip,
+          maximumShearPositionFt: maximumShearPositionFt,
+          maximumMomentKipFt: maximumMomentKipFt,
+          maximumMomentPositionFt: maximumMomentPositionFt
+        };
+      }
+
+      function calculateBendingStressCheck(maximumMomentKipFt, sectionProperties) {
+        const maximumMoment = requireFiniteNumber(maximumMomentKipFt, "maximumMomentKipFt");
+        const section = validateSectionProperties(sectionProperties);
+        const bendingStressKsi = Math.abs(maximumMoment) * 12 / section.SxIn3;
+        return {
+          bendingStressKsi: bendingStressKsi,
+          allowableBendingStressKsi: section.FbKsi,
+          passes: bendingStressKsi <= section.FbKsi
+        };
+      }
+
+      function calculateDeflectionCheck(maximumDeflectionIn, spanFt, limitRatio) {
+        const deflection = requireFiniteNumber(maximumDeflectionIn, "maximumDeflectionIn");
+        const span = requireFiniteNumber(spanFt, "spanFt");
+        if (span <= 0 || (limitRatio !== 240 && limitRatio !== 360)) {
+          throw new RangeError("spanFt must be positive and limitRatio must be 240 or 360.");
+        }
+        const allowableDeflectionIn = span * 12 / limitRatio;
+        return {
+          maximumDeflectionIn: Math.abs(deflection),
+          allowableDeflectionIn: allowableDeflectionIn,
+          limitRatio: limitRatio,
+          passes: Math.abs(deflection) <= allowableDeflectionIn
+        };
+      }
+
+      function findLightestPassingSection(beam, material, limitRatio) {
+        const materialTable = SECTION_PROPERTY_TABLES[material];
+        if (!materialTable) {
+          throw new RangeError('Material must be "steel" or "lumber".');
+        }
+        const extrema = calculateBeamExtrema(beam);
+        let sectionNames = Object.keys(materialTable.sections);
+        if (material === "steel") {
+          sectionNames.sort(function (left, right) {
+            return materialTable.sections[left].weightLbPerFt - materialTable.sections[right].weightLbPerFt;
+          });
+        } else {
+          sectionNames = LUMBER_RECOMMENDATION_ORDER.slice();
+        }
+
+        for (let index = 0; index < sectionNames.length; index += 1) {
+          const properties = getSectionProperties(material, sectionNames[index]);
+          const stressCheck = calculateBendingStressCheck(extrema.maximumMomentKipFt, properties);
+          const maximumDeflection = calculateMaximumDeflection(beam, properties);
+          const deflectionCheck = calculateDeflectionCheck(maximumDeflection.deflectionIn, beam.spanFt, limitRatio);
+          if (stressCheck.passes && deflectionCheck.passes) {
+            return {
+              material: material,
+              sectionName: sectionNames[index],
+              weightLbPerFt: properties.weightLbPerFt,
+              bendingStressKsi: stressCheck.bendingStressKsi,
+              maximumDeflectionIn: maximumDeflection.deflectionIn,
+              selectionRule: material === "steel" ? "lowest passing weight" : "first passing section in specified size order"
+            };
+          }
+        }
+        return null;
+      }
+
+      function calculateBeamDesignResults(beam, material, sectionName, limitRatio) {
+        const model = prepareBeamModel(beam);
+        const properties = getSectionProperties(material, sectionName);
+        const reactions = calculateSupportReactions(model);
+        const extrema = calculateBeamExtrema(model);
+        const maximumDeflection = calculateMaximumDeflection(model, properties);
+        return {
+          reactions: reactions,
+          maximumShearKip: extrema.maximumShearKip,
+          maximumShearPositionFt: extrema.maximumShearPositionFt,
+          maximumMomentKipFt: extrema.maximumMomentKipFt,
+          maximumMomentPositionFt: extrema.maximumMomentPositionFt,
+          maximumDeflection: maximumDeflection,
+          bendingStressCheck: calculateBendingStressCheck(extrema.maximumMomentKipFt, properties),
+          deflectionCheck: calculateDeflectionCheck(maximumDeflection.deflectionIn, model.spanFt, limitRatio),
+          recommendation: findLightestPassingSection(model, material, limitRatio)
+        };
+      }
+
+      function formatDisplayNumber(value) {
+        return Number(value).toFixed(2);
+      }
+
+      function setValueAndUnit(elementId, value, unit) {
+        const element = document.getElementById(elementId);
+        element.textContent = value + " ";
+        const unitElement = document.createElement("span");
+        unitElement.textContent = unit;
+        element.appendChild(unitElement);
+      }
+
+      function setCheckStatus(elementId, passes) {
+        const element = document.getElementById(elementId);
+        element.classList.toggle("pass-pill", passes);
+        element.classList.toggle("fail-pill", !passes);
+        element.textContent = passes ? "Pass" : "Fail";
+      }
+
+      function updateSectionOptions() {
+        const material = document.getElementById("material-select").value;
+        const sectionSelect = document.getElementById("section-select");
+        const currentSection = sectionSelect.value;
+        const sectionNames = Object.keys(SECTION_PROPERTY_TABLES[material].sections);
+        while (sectionSelect.firstChild) {
+          sectionSelect.removeChild(sectionSelect.firstChild);
+        }
+        sectionNames.forEach(function (sectionName) {
+          const option = document.createElement("option");
+          option.value = sectionName;
+          option.textContent = sectionName;
+          sectionSelect.appendChild(option);
+        });
+        sectionSelect.value = sectionNames.includes(currentSection)
+          ? currentSection
+          : (material === "steel" ? "W12x26" : "2x8");
+      }
+
+      function updateLoadPositionBounds() {
+        const span = document.getElementById("span-number").valueAsNumber;
+        if (!Number.isFinite(span)) {
+          return;
+        }
+        ["point-location", "uniform-start", "uniform-end"].forEach(function (id) {
+          document.getElementById(id).max = String(span);
+        });
+      }
+
+      function readBeamInputs() {
+        const pointMagnitude = document.getElementById("point-magnitude").valueAsNumber;
+        const uniformMagnitude = document.getElementById("uniform-magnitude").valueAsNumber;
+        const controlIds = [
+          "span-range",
+          "span-number",
+          "point-magnitude",
+          "uniform-magnitude",
+          "support-type",
+          "material-select",
+          "section-select",
+          "deflection-limit-select"
+        ];
+        if (pointMagnitude > 0) {
+          controlIds.push("point-location");
+        }
+        if (uniformMagnitude > 0) {
+          controlIds.push("uniform-start", "uniform-end");
+        }
+        const controls = controlIds.map(function (id) {
+          return document.getElementById(id);
+        });
+        const invalidControl = controls.find(function (control) {
+          return !control.checkValidity();
+        });
+        if (invalidControl) {
+          throw new RangeError(invalidControl.validationMessage);
+        }
+
+        const spanFt = document.getElementById("span-number").valueAsNumber;
+        return {
+          beam: {
+            supportType: document.getElementById("support-type").value,
+            spanFt: spanFt,
+            pointLoads: pointMagnitude > 0 ? [{
+              magnitudeKip: pointMagnitude,
+              positionFt: document.getElementById("point-location").valueAsNumber
+            }] : [],
+            uniformLoads: uniformMagnitude > 0 ? [{
+              magnitudeKipPerFt: uniformMagnitude,
+              startFt: document.getElementById("uniform-start").valueAsNumber,
+              endFt: document.getElementById("uniform-end").valueAsNumber
+            }] : []
+          },
+          material: document.getElementById("material-select").value,
+          sectionName: document.getElementById("section-select").value,
+          limitRatio: Number(document.getElementById("deflection-limit-select").value)
+        };
+      }
+
+      function renderDesignResults(inputs, results) {
+        document.getElementById("point-load-state").textContent =
+          inputs.beam.pointLoads.length ? "Load 1 included" : "Not included";
+        document.getElementById("uniform-load-state").textContent =
+          inputs.beam.uniformLoads.length ? "Load 1 included" : "Not included";
+
+        const reactionLabel = document.getElementById("reaction-label");
+        const reactionHint = document.getElementById("reaction-hint");
+        if (inputs.beam.supportType === "cantilever") {
+          reactionLabel.textContent = "Fixed support reaction";
+          setValueAndUnit("reaction-value", formatDisplayNumber(results.reactions.leftKip), "kip upward");
+          reactionHint.textContent = "Fixed-end moment " + formatDisplayNumber(results.reactions.fixedEndMomentKipFt) + " kip-ft";
+        } else {
+          reactionLabel.textContent = "Support reactions";
+          setValueAndUnit(
+            "reaction-value",
+            formatDisplayNumber(results.reactions.leftKip) + " / " + formatDisplayNumber(results.reactions.rightKip),
+            "kip left / right"
+          );
+          reactionHint.textContent = "R_A " + formatDisplayNumber(results.reactions.leftKip) +
+            " kip · R_B " + formatDisplayNumber(results.reactions.rightKip) + " kip";
+        }
+
+        setValueAndUnit("shear-value", formatDisplayNumber(results.maximumShearKip), "kip");
+        document.getElementById("shear-hint").textContent = "At " + formatDisplayNumber(results.maximumShearPositionFt) + " ft";
+        setValueAndUnit("moment-value", formatDisplayNumber(results.maximumMomentKipFt), "kip-ft");
+        document.getElementById("moment-hint").textContent = "At " + formatDisplayNumber(results.maximumMomentPositionFt) + " ft";
+        setValueAndUnit("deflection-value", formatDisplayNumber(results.maximumDeflection.deflectionIn), "in");
+        document.getElementById("deflection-hint").textContent =
+          "At " + formatDisplayNumber(results.maximumDeflection.positionFt) + " ft · downward";
+
+        setValueAndUnit("stress-value", formatDisplayNumber(results.bendingStressCheck.bendingStressKsi), "ksi demand");
+        document.getElementById("stress-allowable").textContent =
+          formatDisplayNumber(results.bendingStressCheck.allowableBendingStressKsi) + " ksi";
+        setCheckStatus("stress-status", results.bendingStressCheck.passes);
+
+        setValueAndUnit("deflection-check-value", formatDisplayNumber(results.deflectionCheck.maximumDeflectionIn), "in actual");
+        document.getElementById("deflection-limit-label").textContent = "Limit · L/" + results.deflectionCheck.limitRatio;
+        document.getElementById("deflection-limit-value").textContent =
+          formatDisplayNumber(results.deflectionCheck.allowableDeflectionIn) + " in";
+        setCheckStatus("deflection-status", results.deflectionCheck.passes);
+
+        const recommendation = results.recommendation;
+        const recommendationValue = document.getElementById("recommendation-value");
+        const recommendationDetail = document.getElementById("recommendation-detail");
+        if (!recommendation) {
+          recommendationValue.textContent = "None";
+          recommendationDetail.textContent = "No " + inputs.material + " section in the table passes both checks.";
+        } else {
+          recommendationValue.textContent = recommendation.sectionName;
+          recommendationDetail.textContent = inputs.material === "steel"
+            ? "Lowest-weight steel section passing both checks · " + formatDisplayNumber(recommendation.weightLbPerFt) + " lb/ft."
+            : "First passing lumber section in the specified order: 2x8, 2x10, 2x12 (not weight based).";
+        }
+
+        const isValidationExample = inputs.beam.supportType === "simplySupported" &&
+          inputs.beam.spanFt === 20 &&
+          inputs.beam.pointLoads.length === 0 &&
+          inputs.beam.uniformLoads.length === 1 &&
+          inputs.beam.uniformLoads[0].magnitudeKipPerFt === 1 &&
+          inputs.beam.uniformLoads[0].startFt === 0 &&
+          inputs.beam.uniformLoads[0].endFt === 20 &&
+          inputs.material === "steel" &&
+          inputs.sectionName === "W12x26" &&
+          inputs.limitRatio === 360;
+        document.getElementById("scenario-label").textContent =
+          isValidationExample ? "Validation example loaded" : "Custom analysis";
+        document.getElementById("header-status-text").textContent = "Live calculations";
+        document.getElementById("beam-summary").textContent =
+          (inputs.beam.supportType === "cantilever" ? "Cantilever" : "Simply supported") +
+          " · " + formatDisplayNumber(inputs.beam.spanFt) + " ft span · " +
+          inputs.sectionName + " " + inputs.material;
+        document.getElementById("beam-footer-note").textContent =
+          "Loads and supports reflect current inputs; self-weight is not added";
+        const loadSummary = document.getElementById("beam-load-summary");
+        if (inputs.beam.pointLoads.length === 0 && inputs.beam.uniformLoads.length === 0) {
+          loadSummary.textContent = "No applied loads";
+        } else {
+          const loadDescriptions = [];
+          if (inputs.beam.pointLoads.length > 0) {
+            loadDescriptions.push(inputs.beam.pointLoads.length + " point " +
+              (inputs.beam.pointLoads.length === 1 ? "load" : "loads"));
+          }
+          if (inputs.beam.uniformLoads.length > 0) {
+            loadDescriptions.push(inputs.beam.uniformLoads.length + " uniform " +
+              (inputs.beam.uniformLoads.length === 1 ? "load" : "loads"));
+          }
+          loadSummary.textContent = loadDescriptions.join(" · ");
+        }
+        renderDiagrams(inputs, results);
+      }
+
+      const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+
+      function appendSvgElement(parent, tagName, attributes, textContent) {
+        const element = document.createElementNS(SVG_NAMESPACE, tagName);
+        Object.keys(attributes).forEach(function (name) {
+          element.setAttribute(name, attributes[name]);
+        });
+        if (textContent !== undefined) {
+          element.textContent = textContent;
+        }
+        parent.appendChild(element);
+        return element;
+      }
+
+      function resetSvg(svgId, titleId, title, descriptionId, description) {
+        const svg = document.getElementById(svgId);
+        svg.replaceChildren();
+        appendSvgElement(svg, "title", { id: titleId }, title);
+        appendSvgElement(svg, "desc", { id: descriptionId }, description);
+        return svg;
+      }
+
+      function diagramX(positionFt, spanFt) {
+        return 90 + positionFt / spanFt * 775;
+      }
+
+      function formatAxisPosition(positionFt) {
+        return String(Number(positionFt.toFixed(2)));
+      }
+
+      function addDiagramAxes(svg, spanFt, baselineY) {
+        const xStart = 90;
+        const xEnd = 865;
+        const middleFt = spanFt / 2;
+        appendSvgElement(svg, "line", {
+          x1: xStart, y1: baselineY, x2: xEnd, y2: baselineY,
+          stroke: "var(--diagram-rule)", "stroke-width": 1.2
+        });
+        [0, middleFt, spanFt].forEach(function (positionFt) {
+          const x = diagramX(positionFt, spanFt);
+          appendSvgElement(svg, "line", {
+            x1: x, y1: 16, x2: x, y2: 91,
+            stroke: "var(--diagram-grid)", "stroke-width": 1
+          });
+          appendSvgElement(svg, "text", {
+            x: x, y: 106, "text-anchor": "middle",
+            fill: "var(--diagram-muted)", "font-size": 9
+          }, formatAxisPosition(positionFt) + " ft");
+        });
+      }
+
+      function drawDataDiagram(options) {
+        const svg = resetSvg(options.svgId, options.titleId, options.title, options.descriptionId, options.description);
+        const baselineY = 54;
+        const topY = 19;
+        const bottomY = 89;
+        const values = options.points.map(function (point) {
+          return point.value;
+        });
+        const minimum = Math.min(0, ...values);
+        const maximum = Math.max(0, ...values);
+        const largestMagnitude = Math.max(Math.abs(minimum), Math.abs(maximum), 0.000001);
+        const verticalScale = 35 / largestMagnitude;
+        const yForValue = function (value) {
+          return options.positiveDown
+            ? baselineY + value * verticalScale
+            : baselineY - value * verticalScale;
+        };
+        addDiagramAxes(svg, options.spanFt, baselineY);
+
+        const upperLabel = options.positiveDown ? minimum : maximum;
+        const lowerLabel = options.positiveDown ? maximum : minimum;
+        appendSvgElement(svg, "text", {
+          x: 75, y: topY, "text-anchor": "end",
+          fill: "var(--diagram-text)", "font-size": 9
+        }, formatDisplayNumber(upperLabel));
+        appendSvgElement(svg, "text", {
+          x: 75, y: bottomY, "text-anchor": "end",
+          fill: "var(--diagram-text)", "font-size": 9
+        }, formatDisplayNumber(lowerLabel));
+
+        const vertices = options.points.map(function (point) {
+          return {
+            x: diagramX(point.positionFt, options.spanFt),
+            y: yForValue(point.value)
+          };
+        });
+        if (vertices.length > 0) {
+          const linePath = vertices.map(function (point, index) {
+            return (index === 0 ? "M" : "L") + point.x.toFixed(3) + " " + point.y.toFixed(3);
+          }).join(" ");
+          if (options.fill) {
+            const areaPath = "M" + vertices[0].x.toFixed(3) + " " + baselineY +
+              " L" + vertices.map(function (point) {
+                return point.x.toFixed(3) + " " + point.y.toFixed(3);
+              }).join(" L") +
+              " L" + vertices[vertices.length - 1].x.toFixed(3) + " " + baselineY + " Z";
+            appendSvgElement(svg, "path", {
+              d: areaPath,
+              fill: "var(--diagram-fill)",
+              opacity: 0.68
+            });
+          }
+          appendSvgElement(svg, "path", {
+            d: linePath,
+            fill: "none",
+            stroke: "var(--blue)",
+            "stroke-width": 2.5,
+            "stroke-linejoin": "round",
+            "stroke-linecap": "round"
+          });
+        }
+
+        if (options.peakPositionFt !== undefined && options.peakValue !== undefined) {
+          const peakX = diagramX(options.peakPositionFt, options.spanFt);
+          const peakY = yForValue(options.peakValue);
+          appendSvgElement(svg, "circle", {
+            cx: peakX, cy: peakY, r: 3.5,
+            fill: "var(--blue)", stroke: "var(--paper)", "stroke-width": 1
+          });
+        }
+      }
+
+      function drawBeamDiagram(inputs, results) {
+        const beam = inputs.beam;
+        const reactions = results.reactions;
+        const svg = resetSvg(
+          "beam-svg",
+          "beam-svg-title",
+          "Beam and load diagram",
+          "beam-svg-desc",
+          "A " + beam.spanFt + " foot " +
+            (beam.supportType === "cantilever" ? "cantilever" : "simply supported") +
+            " beam with the applied loads and calculated support reactions."
+        );
+        const xStart = 120;
+        const xEnd = 860;
+        const beamY = 92;
+        const xForPosition = function (positionFt) {
+          return xStart + positionFt / beam.spanFt * (xEnd - xStart);
+        };
+
+        const defs = appendSvgElement(svg, "defs", {});
+        const loadMarker = appendSvgElement(defs, "marker", {
+          id: "dynamic-load-arrow", markerWidth: 8, markerHeight: 8,
+          refX: 4, refY: 6, orient: "auto"
+        });
+        appendSvgElement(loadMarker, "path", {
+          d: "M0 0L4 7L8 0", fill: "none",
+          stroke: "var(--diagram-load)", "stroke-width": 1.5
+        });
+        const reactionMarker = appendSvgElement(defs, "marker", {
+          id: "dynamic-reaction-arrow", markerWidth: 8, markerHeight: 8,
+          refX: 4, refY: 1, orient: "auto"
+        });
+        appendSvgElement(reactionMarker, "path", {
+          d: "M0 7L4 0L8 7", fill: "none",
+          stroke: "var(--blue)", "stroke-width": 1.5
+        });
+        const dimensionMarker = appendSvgElement(defs, "marker", {
+          id: "dynamic-dimension-arrow", markerWidth: 7, markerHeight: 7,
+          refX: 3.5, refY: 3.5, orient: "auto-start-reverse"
+        });
+        appendSvgElement(dimensionMarker, "path", {
+          d: "M7 0L0 3.5L7 7", fill: "none",
+          stroke: "var(--diagram-muted)", "stroke-width": 1.2
+        });
+
+        let labelRow = 20;
+        if (beam.uniformLoads.length === 0 && beam.pointLoads.length === 0) {
+          appendSvgElement(svg, "text", {
+            x: 490, y: labelRow, "text-anchor": "middle",
+            fill: "var(--diagram-muted)", "font-size": 11
+          }, "No applied loads");
+        }
+
+        beam.uniformLoads.forEach(function (load) {
+          const startX = xForPosition(load.startFt);
+          const endX = xForPosition(load.endFt);
+          appendSvgElement(svg, "text", {
+            x: (startX + endX) / 2, y: labelRow, "text-anchor": "middle",
+            fill: "var(--diagram-load-text)", "font-size": 11, "font-weight": 650
+          }, formatDisplayNumber(load.magnitudeKipPerFt) + " kip/ft · " +
+            formatAxisPosition(load.startFt) + "–" + formatAxisPosition(load.endFt) + " ft");
+          appendSvgElement(svg, "line", {
+            x1: startX, y1: 43, x2: endX, y2: 43,
+            stroke: "var(--diagram-load)", "stroke-width": 2
+          });
+          const arrowCount = Math.max(2, Math.min(24, Math.floor((endX - startX) / 34)));
+          for (let index = 0; index <= arrowCount; index += 1) {
+            const x = startX + (endX - startX) * index / arrowCount;
+            appendSvgElement(svg, "line", {
+              x1: x, y1: 46, x2: x, y2: beamY - 7,
+              stroke: "var(--diagram-load)", "stroke-width": 1.5,
+              "marker-end": "url(#dynamic-load-arrow)"
+            });
+          }
+          labelRow += 14;
+        });
+
+        beam.pointLoads.forEach(function (load) {
+          const x = xForPosition(load.positionFt);
+          appendSvgElement(svg, "text", {
+            x: x, y: labelRow, "text-anchor": "middle",
+            fill: "var(--diagram-load-text)", "font-size": 10, "font-weight": 650
+          }, formatDisplayNumber(load.magnitudeKip) + " kip @ " + formatAxisPosition(load.positionFt) + " ft");
+          appendSvgElement(svg, "line", {
+            x1: x, y1: labelRow + 4, x2: x, y2: beamY - 7,
+            stroke: "var(--diagram-load)", "stroke-width": 1.7,
+            "marker-end": "url(#dynamic-load-arrow)"
+          });
+          labelRow += 14;
+        });
+
+        if (beam.supportType === "cantilever") {
+          appendSvgElement(svg, "line", {
+            x1: xStart - 9, y1: beamY - 22, x2: xStart - 9, y2: beamY + 27,
+            stroke: "var(--blue)", "stroke-width": 4
+          });
+          for (let y = beamY - 20; y <= beamY + 24; y += 8) {
+            appendSvgElement(svg, "line", {
+              x1: xStart - 22, y1: y + 7, x2: xStart - 9, y2: y - 2,
+              stroke: "var(--diagram-muted)", "stroke-width": 1
+            });
+          }
+        } else {
+          appendSvgElement(svg, "path", {
+            d: "M" + xStart + " " + (beamY + 8) + "L" + (xStart - 15) + " " + (beamY + 31) +
+              "H" + (xStart + 15) + "Z",
+            fill: "var(--diagram-support-fill)", stroke: "var(--blue)", "stroke-width": 1.5
+          });
+          appendSvgElement(svg, "path", {
+            d: "M" + xEnd + " " + (beamY + 8) + "L" + (xEnd - 15) + " " + (beamY + 31) +
+              "H" + (xEnd + 15) + "Z",
+            fill: "var(--diagram-support-fill)", stroke: "var(--blue)", "stroke-width": 1.5
+          });
+        }
+
+        appendSvgElement(svg, "rect", {
+          x: xStart, y: beamY - 6, width: xEnd - xStart, height: 12, rx: 3,
+          fill: "var(--diagram-beam-fill)", stroke: "var(--blue)", "stroke-width": 1.5
+        });
+
+        appendSvgElement(svg, "line", {
+          x1: xStart, y1: beamY + 70, x2: xStart, y2: beamY + 41,
+          stroke: "var(--blue)", "stroke-width": 2,
+          "marker-end": "url(#dynamic-reaction-arrow)"
+        });
+        appendSvgElement(svg, "text", {
+          x: xStart, y: beamY + 85, "text-anchor": "middle",
+          fill: "var(--diagram-reaction-text)", "font-size": 10, "font-weight": 650
+        }, "R_A " + formatDisplayNumber(reactions.leftKip) + " kip");
+
+        if (beam.supportType === "simplySupported") {
+          appendSvgElement(svg, "line", {
+            x1: xEnd, y1: beamY + 70, x2: xEnd, y2: beamY + 41,
+            stroke: "var(--blue)", "stroke-width": 2,
+            "marker-end": "url(#dynamic-reaction-arrow)"
+          });
+          appendSvgElement(svg, "text", {
+            x: xEnd, y: beamY + 85, "text-anchor": "middle",
+            fill: "var(--diagram-reaction-text)", "font-size": 10, "font-weight": 650
+          }, "R_B " + formatDisplayNumber(reactions.rightKip) + " kip");
+        } else {
+          appendSvgElement(svg, "text", {
+            x: xStart + 34, y: beamY + 85, "text-anchor": "start",
+            fill: "var(--diagram-reaction-text)", "font-size": 10, "font-weight": 650
+          }, "M_A " + formatDisplayNumber(reactions.fixedEndMomentKipFt) + " kip-ft");
+        }
+
+        const dimensionY = 200;
+        appendSvgElement(svg, "line", {
+          x1: xStart, y1: dimensionY, x2: xEnd, y2: dimensionY,
+          stroke: "var(--diagram-muted)", "stroke-width": 1.2,
+          "marker-start": "url(#dynamic-dimension-arrow)",
+          "marker-end": "url(#dynamic-dimension-arrow)"
+        });
+        appendSvgElement(svg, "rect", {
+          x: 435, y: dimensionY - 12, width: 110, height: 23, rx: 11,
+          fill: "var(--diagram-paper)", stroke: "var(--line)"
+        });
+        appendSvgElement(svg, "text", {
+          x: 490, y: dimensionY + 4, "text-anchor": "middle",
+          fill: "var(--diagram-text)", "font-size": 11, "font-weight": 650
+        }, formatAxisPosition(beam.spanFt) + " ft span");
+      }
+
+      function renderDiagrams(inputs, results) {
+        const beam = inputs.beam;
+        const shearRows = BeamCalculations.calculateShearDiagramValues(beam);
+        const shearPoints = [];
+        shearRows.forEach(function (row) {
+          shearPoints.push({ positionFt: row.positionFt, value: row.leftShearKip });
+          shearPoints.push({ positionFt: row.positionFt, value: row.rightShearKip });
+        });
+        const shearMax = Math.max.apply(null, shearPoints.map(function (point) { return point.value; }));
+        const shearMin = Math.min.apply(null, shearPoints.map(function (point) { return point.value; }));
+        drawDataDiagram({
+          svgId: "shear-diagram",
+          titleId: "shear-title",
+          descriptionId: "shear-desc",
+          title: "Calculated shear force diagram",
+          description: "Shear ranges from " + formatDisplayNumber(shearMin) + " to " +
+            formatDisplayNumber(shearMax) + " kips over a " + beam.spanFt + " foot span.",
+          points: shearPoints,
+          spanFt: beam.spanFt,
+          fill: true
+        });
+        document.getElementById("shear-diagram-stat").textContent =
+          "Vmax " + formatDisplayNumber(results.maximumShearKip) + " kip";
+        document.getElementById("shear-diagram-caption").textContent =
+          "Peak at " + formatDisplayNumber(results.maximumShearPositionFt) + " ft";
+
+        const eventPositions = shearRows.map(function (row) {
+          return row.positionFt;
+        });
+        const sampledPositions = [];
+        for (let index = 0; index <= 200; index += 1) {
+          sampledPositions.push(beam.spanFt * index / 200);
+        }
+        const momentPositions = eventPositions.concat(sampledPositions, results.maximumMomentPositionFt);
+        const momentRows = BeamCalculations.calculateMomentDiagramValues(
+          beam,
+          Array.from(new Set(momentPositions)).sort(function (a, b) { return a - b; })
+        );
+        const momentPoints = momentRows.map(function (row) {
+          return { positionFt: row.positionFt, value: row.momentKipFt };
+        });
+        drawDataDiagram({
+          svgId: "moment-diagram",
+          titleId: "moment-title",
+          descriptionId: "moment-desc",
+          title: "Calculated bending moment diagram",
+          description: "Bending moment reaches a magnitude of " +
+            formatDisplayNumber(results.maximumMomentKipFt) + " kip-feet at " +
+            formatDisplayNumber(results.maximumMomentPositionFt) + " feet.",
+          points: momentPoints,
+          spanFt: beam.spanFt,
+          fill: true,
+          peakPositionFt: results.maximumMomentPositionFt,
+          peakValue: momentRows.reduce(function (closest, row) {
+            return Math.abs(row.positionFt - results.maximumMomentPositionFt) <
+              Math.abs(closest.positionFt - results.maximumMomentPositionFt) ? row : closest;
+          }, momentRows[0]).momentKipFt
+        });
+        document.getElementById("moment-diagram-stat").textContent =
+          "Mmax " + formatDisplayNumber(results.maximumMomentKipFt) + " kip-ft";
+        document.getElementById("moment-diagram-caption").textContent =
+          "Peak at " + formatDisplayNumber(results.maximumMomentPositionFt) + " ft";
+
+        const deflectionPositions = momentPositions.concat(results.maximumDeflection.positionFt);
+        const deflectionRows = BeamCalculations.calculateDeflectionValues(
+          beam,
+          BeamCalculations.getSectionProperties(inputs.material, inputs.sectionName),
+          Array.from(new Set(deflectionPositions)).sort(function (a, b) { return a - b; })
+        );
+        drawDataDiagram({
+          svgId: "deflection-diagram",
+          titleId: "deflection-title",
+          descriptionId: "deflection-desc",
+          title: "Calculated beam deflection diagram",
+          description: "Deflection reaches " +
+            formatDisplayNumber(results.maximumDeflection.signedDeflectionIn) + " inches at " +
+            formatDisplayNumber(results.maximumDeflection.positionFt) + " feet.",
+          points: deflectionRows.map(function (row) {
+            return { positionFt: row.positionFt, value: row.deflectionIn };
+          }),
+          spanFt: beam.spanFt,
+          positiveDown: true,
+          peakPositionFt: results.maximumDeflection.positionFt,
+          peakValue: results.maximumDeflection.signedDeflectionIn
+        });
+        document.getElementById("deflection-diagram-stat").textContent =
+          "δmax " + formatDisplayNumber(results.maximumDeflection.deflectionIn) + " in";
+        document.getElementById("deflection-diagram-caption").textContent =
+          "Peak at " + formatDisplayNumber(results.maximumDeflection.positionFt) + " ft · scale adjusts";
+        drawBeamDiagram(inputs, results);
+      }
+
+      function updateAnalysisFromInputs() {
+        const status = document.getElementById("analysis-status");
+        try {
+          const inputs = readBeamInputs();
+          const results = calculateBeamDesignResults(
+            inputs.beam,
+            inputs.material,
+            inputs.sectionName,
+            inputs.limitRatio
+          );
+          renderDesignResults(inputs, results);
+          status.classList.remove("error");
+          status.textContent = "Results and diagrams update as inputs change.";
+        } catch (error) {
+          if (!(error instanceof RangeError) && !(error instanceof TypeError)) {
+            throw error;
+          }
+          status.classList.add("error");
+          status.textContent = "Results unavailable: " + error.message;
+          document.getElementById("header-status-text").textContent = "Check inputs";
+        }
+      }
+
+      function initializeBeamDesigner() {
+        const spanRange = document.getElementById("span-range");
+        const spanNumber = document.getElementById("span-number");
+        const materialSelect = document.getElementById("material-select");
+        updateSectionOptions();
+        updateLoadPositionBounds();
+
+        spanRange.addEventListener("input", function () {
+          spanNumber.value = spanRange.value;
+          updateLoadPositionBounds();
+          updateAnalysisFromInputs();
+        });
+        spanNumber.addEventListener("input", function () {
+          if (spanNumber.checkValidity()) {
+            spanRange.value = spanNumber.value;
+          }
+          updateLoadPositionBounds();
+          updateAnalysisFromInputs();
+        });
+        materialSelect.addEventListener("change", function () {
+          updateSectionOptions();
+          updateAnalysisFromInputs();
+        });
+        document.getElementById("section-select").addEventListener("change", updateAnalysisFromInputs);
+        document.getElementById("support-type").addEventListener("change", updateAnalysisFromInputs);
+        document.getElementById("deflection-limit-select").addEventListener("change", updateAnalysisFromInputs);
+        ["point-magnitude", "point-location", "uniform-magnitude", "uniform-start", "uniform-end"].forEach(function (id) {
+          document.getElementById(id).addEventListener("input", updateAnalysisFromInputs);
+        });
+        updateAnalysisFromInputs();
+      }
+
+      function initializeTheme() {
+        const themeToggle = document.getElementById("theme-toggle");
+        const themeLabel = document.getElementById("theme-toggle-label");
+        let userSelectedTheme = false;
+
+        function applyTheme(theme) {
+          const isDark = theme === "dark";
+          document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+          themeToggle.setAttribute("aria-pressed", String(isDark));
+          themeToggle.setAttribute("aria-label", "Switch to " + (isDark ? "light" : "dark") + " mode");
+          themeLabel.textContent = isDark ? "Light mode" : "Dark mode";
+        }
+
+        const systemPreference = window.matchMedia("(prefers-color-scheme: dark)");
+        applyTheme(systemPreference.matches ? "dark" : "light");
+        themeToggle.addEventListener("click", function () {
+          userSelectedTheme = true;
+          const currentlyDark = document.documentElement.getAttribute("data-theme") === "dark";
+          applyTheme(currentlyDark ? "light" : "dark");
+        });
+        systemPreference.addEventListener("change", function (event) {
+          if (!userSelectedTheme) {
+            applyTheme(event.matches ? "dark" : "light");
+          }
+        });
+      }
+
+      window.BeamCalculations = Object.freeze({
+        getSectionProperties: getSectionProperties,
+        calculateSupportReactions: calculateSupportReactions,
+        calculateShearDiagramValues: calculateShearDiagramValues,
+        calculateMomentDiagramValues: calculateMomentDiagramValues,
+        calculateDeflectionValues: calculateDeflectionValues,
+        calculateMaximumDeflection: calculateMaximumDeflection,
+        calculateBeamExtrema: calculateBeamExtrema,
+        calculateBendingStressCheck: calculateBendingStressCheck,
+        calculateDeflectionCheck: calculateDeflectionCheck,
+        findLightestPassingSection: findLightestPassingSection,
+        calculateBeamDesignResults: calculateBeamDesignResults
+      });
+
+      initializeTheme();
+      initializeBeamDesigner();
+    </script>
+  </body>
+</html>
